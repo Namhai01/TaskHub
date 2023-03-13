@@ -16,6 +16,11 @@ const UsersSchema = new mongoose.Schema(
       type: String,
       require:true,
     },
+    isLoggedIn: {
+      type: Boolean,
+      enum : [true, false],
+      default: false,
+    }
   },
   { collection: 'Users',  // cài đặt tên cho conversations kết nối đến 
     versionKey: false   // loai bo version key  
