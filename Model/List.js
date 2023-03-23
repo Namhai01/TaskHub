@@ -1,23 +1,24 @@
 const mongoose = require('mongoose');
 const ListsSchema = new mongoose.Schema(
   {
-    userName: {
+    userID: {
       type: String,
-      require:true,
+      require: true,
     },
     job: {
       type: String,
-      require:true,
+      require: true,
     },
     status: {
       type: String,
-      enum: ['DONE','UNDONE'],
-      default:'UNDONE'
+      enum: ['DONE', 'UNDONE'],
+      default: 'UNDONE'
     },
   },
-  { collection: 'List',  // cài đặt tên cho conversations kết nối đến 
+  {
+    collection: 'List',  // cài đặt tên cho conversations kết nối đến 
     versionKey: false   // loai bo version key  
-  }  
+  }
 );
 const List = mongoose.model("List", ListsSchema);
 module.exports = List;
