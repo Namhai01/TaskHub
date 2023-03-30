@@ -7,9 +7,7 @@ module.exports.Register = async (req, res) => {
       const emailRegexp =
         /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
       if (emailRegexp.test(Email)) {
-        const checkUser = await User.findOne({
-          $or: [{ userName: req.body.username }, { email: Email }],
-        });
+        const checkUser = await User.findOne({ userName: req.body.username });
         if (!checkUser) {
           const saltRounds = 10;
           const hash = bcrypt.hashSync(req.body.password, saltRounds);
@@ -23,7 +21,7 @@ module.exports.Register = async (req, res) => {
         } else {
           res.json({
             status: "error",
-            Message: "Email or username has already used",
+            Message: "Username has already used",
           });
         }
       } else {
