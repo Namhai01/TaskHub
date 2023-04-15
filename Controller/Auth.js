@@ -49,13 +49,26 @@ module.exports.LogOut = async (req, res) => {
 };
 
 module.exports.Login = async (req, res) => {
-  const conditions = { userName: 1, phone: 1, email: 1, isLoggedIn: 1 };
+  const conditions = {
+    userName: 1,
+    phone: 1,
+    email: 1,
+    isLoggedIn: 1,
+    lastTimeLoggedIn: 1,
+  };
   if (req.session.passport.user) {
     const find = await User.findById(
       { _id: req.session.passport.user },
       conditions
     );
-    res.json(find);
+    await User.updateOne({
+      lastTimeLoggedIn: Date.now(),
+    });
+    if (find) {
+      res.json(find);
+    } else {
+      res.json({ status: "error" });
+    }
   } else {
     res.json({ data: null });
   }

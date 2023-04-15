@@ -37,3 +37,5 @@ module.exports.userChangeInfo = async (req, res) => {
     res.send("error creating:" + error.message);
   }
 };
+
+module.exports.userAvatar = async (req, res) => {};
