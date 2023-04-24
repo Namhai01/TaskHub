@@ -105,9 +105,9 @@ module.exports.findJob = async (req, res) => {
         const getjob = req.body.job;
         const Findtodo = await List.aggregate([
           { $match: { job: { $regex: getjob, $options: "i" } } },
-        ]);
-        // .skip((req.body.skip - 1) * req.body.limit)
-        // .limit(req.body.limit || 10);
+        ])
+          .skip((req.body.skip - 1) * req.body.limit)
+          .limit(req.body.limit || 10);
         res.json({ data: { Total: Findtodo.length, Findtodo } });
       }
     } else {
