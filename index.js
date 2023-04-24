@@ -29,7 +29,7 @@ app.use(
       stringify: false,
     }),
     cookie: {
-      maxAge: 1000 * 900,
+      maxAge: 1000 * 90000,
       httpOnly: true,
     },
   })

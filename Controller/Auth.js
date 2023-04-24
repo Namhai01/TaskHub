@@ -49,28 +49,34 @@ module.exports.LogOut = async (req, res) => {
 };
 
 module.exports.Login = async (req, res) => {
-  const conditions = {
-    userName: 1,
-    phone: 1,
-    email: 1,
-    isLoggedIn: 1,
-    lastTimeLoggedIn: 1,
-  };
-  if (req.session.passport.user) {
-    const find = await User.findById(
-      { _id: req.session.passport.user },
-      conditions
-    );
-    await User.updateOne({
-      lastTimeLoggedIn: Date.now(),
-    });
-    if (find) {
-      res.json(find);
+  try {
+    const conditions = {
+      userName: 1,
+      phone: 1,
+      email: 1,
+      isLoggedIn: 1,
+      lastTimeLoggedIn: 1,
+    };
+    if (req.session.passport.user) {
+      const find = await User.findById(
+        { _id: req.session.passport.user },
+        conditions
+      );
+      await User.updateOne({
+        lastTimeLoggedIn: Date.now(),
+      });
+      if (res.statusCode == 401) {
+        console.log("a");
+      }
+      if (find) {
+        res.json(find);
+      }
     } else {
-      res.json({ status: "error" });
+      res.json({ data: null });
     }
-  } else {
-    res.json({ data: null });
+  } catch (error) {
+    res.send("error creating:" + error.message);
+    // console.log(error.message);
   }
 };
 
