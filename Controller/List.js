@@ -1,4 +1,3 @@
-const { startSucceeded } = require("init");
 const List = require("../Model/List");
 module.exports.getJod = async (req, res) => {
   try {
@@ -21,12 +20,22 @@ module.exports.addJod = async (req, res) => {
       const getList = await List.insertMany({
         userID: req.session.passport.user,
         job: req.body.job,
-        status: req.body.status,
         title: req.body.title,
-        description: req.body.description,
+        description: req.body.des,
       });
       if (getList) {
-        res.json({ status: "success", message: "Thêm thành công" });
+        const Count = await List.count({ userID: req.session.passport.user });
+        const getList = await List.find({ userID: req.session.passport.user })
+          .skip((req.body.skip - 1) * 10)
+          .limit(10);
+        res.json({
+          data: {
+            Total: Count,
+            status: "success",
+            message: "Thêm thành công",
+            getList,
+          },
+        });
       }
     }
   } catch (error) {
@@ -48,7 +57,18 @@ module.exports.updateJod = async (req, res) => {
         }
       );
       if (updateList) {
-        res.json({ status: "success", message: "Update thành công" });
+        const Count = await List.count({ userID: req.session.passport.user });
+        const getList = await List.find({ userID: req.session.passport.user })
+          .skip((req.body.skip - 1) * 10)
+          .limit(10);
+        res.json({
+          data: {
+            Total: Count,
+            status: "success",
+            message: "Update thành công",
+            getList,
+          },
+        });
       }
     }
   } catch (error) {
@@ -57,35 +77,30 @@ module.exports.updateJod = async (req, res) => {
 };
 module.exports.delJod = async (req, res) => {
   try {
-    if (req.body || req.body.count > 0) {
-      if (req.body.count > 1) {
-        let convertString = await JSON.stringify(req.body.id);
-        let arr = [];
-        for (let i = 0; i < convertString.split(",").length; i++) {
-          const test = convertString
-            .split(",")
-            [i].replace(`"`, ``)
-            .replace(`[`, ``);
-          arr.push(test);
-        }
-        const delList = await List.deleteMany({
-          _id: {
-            $in: arr,
+    if (req.body.id) {
+      const delList = await List.deleteOne({ _id: req.body.id });
+      const Count = await List.count({ userID: req.session.passport.user });
+      const getList = await List.find({ userID: req.session.passport.user })
+        .skip(10)
+        .limit(10);
+      if (delList.deletedCount > 0) {
+        res.json({
+          data: {
+            Total: Count,
+            status: "success",
+            message: "Xoá thành công",
+            getList,
           },
         });
-        console.log(delList);
-        if (delList.deletedCount > 0) {
-          res.json({ status: "success", message: "Xoá thành công" });
-        } else {
-          res.json({ status: "error", data: [] });
-        }
       } else {
-        const delList = await List.deleteOne({ _id: req.body.id });
-        if (delList.deletedCount > 0) {
-          res.json({ status: "success", message: "Xoá thành công" });
-        } else {
-          res.json({ status: "error", data: [] });
-        }
+        res.json({
+          data: {
+            Total: Count,
+            status: "false",
+            message: "Xoá không thành công",
+            getList,
+          },
+        });
       }
     }
   } catch (error) {
@@ -94,21 +109,34 @@ module.exports.delJod = async (req, res) => {
 };
 module.exports.findJob = async (req, res) => {
   try {
-    const Findtodo = await List.find({
-      userID: req.session.passport.user,
-    });
+    const Count = await List.count({ userID: req.session.passport.user });
 
-    if (Findtodo) {
+    if (Count > 0) {
       if (req.body.job === "") {
-        res.json({ data: { Total: Findtodo.length, Findtodo } });
+        const Findtodo = await List.find({
+          userID: req.session.passport.user,
+        })
+          .skip((req.body.skip - 1) * 10)
+          .limit(10);
+        res.json({ data: { Total: Count, Findtodo } });
       } else {
         const getjob = req.body.job;
-        const Findtodo = await List.aggregate([
+        const CountFinds = await List.aggregate([
           { $match: { job: { $regex: getjob, $options: "i" } } },
-        ])
-          .skip((req.body.skip - 1) * req.body.limit)
-          .limit(req.body.limit || 10);
-        res.json({ data: { Total: Findtodo.length, Findtodo } });
+        ]);
+
+        if (CountFinds.length > 0) {
+          const Findtodo = await List.aggregate([
+            { $match: { job: { $regex: getjob, $options: "i" } } },
+          ])
+            .skip((req.body.skip - 1) * 10)
+            .limit(10);
+          res.json({ data: { Total: CountFinds.length, Findtodo } });
+        } else {
+          res.json({
+            data: { Total: CountFinds.length, message: "Không tìm thấy" },
+          });
+        }
       }
     } else {
       res.json({ status: "false", data: null });
