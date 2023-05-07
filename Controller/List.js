@@ -2,7 +2,7 @@ const List = require("../Model/List");
 module.exports.getJod = async (req, res) => {
   try {
     const getList = await List.find({ userID: req.session.passport.user })
-      .skip((req.body.skip - 1) * 10)
+      .skip((req.query.skip - 1) * 10)
       .limit(10);
     const Total = await List.count({ userID: req.session.passport.user });
     if (getList) {
@@ -116,7 +116,7 @@ module.exports.findJob = async (req, res) => {
         const Findtodo = await List.find({
           userID: req.session.passport.user,
         })
-          .skip((req.body.skip - 1) * 10)
+          .skip((req.query.skip - 1) * 10)
           .limit(10);
         res.json({ data: { Total: Count, Findtodo } });
       } else {
@@ -129,7 +129,7 @@ module.exports.findJob = async (req, res) => {
           const Findtodo = await List.aggregate([
             { $match: { job: { $regex: getjob, $options: "i" } } },
           ])
-            .skip((req.body.skip - 1) * 10)
+            .skip((req.query.skip - 1) * 10)
             .limit(10);
           res.json({ data: { Total: CountFinds.length, Findtodo } });
         } else {

@@ -9,7 +9,7 @@ const {
   delJod,
 } = require("../Controller/List");
 router.post("/add", checkAuthentication, addJod);
-router.post("/", checkAuthentication, getJod);
+router.get("/", checkAuthentication, getJod);
 router.post("/update", checkAuthentication, updateJod);
 router.post("/find", checkAuthentication, findJob);
 router.post("/delete", checkAuthentication, delJod);

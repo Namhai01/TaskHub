@@ -25,10 +25,17 @@ const UsersSchema = new mongoose.Schema(
       enum: [true, false],
       default: false,
     },
+    groups: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Group",
+      },
+    ],
   },
   {
     collection: "Users", // cài đặt tên cho conversations kết nối đến
     versionKey: false, // loai bo version key
+    timestamps: true,
   }
 );
 const User = mongoose.model("Users", UsersSchema);
