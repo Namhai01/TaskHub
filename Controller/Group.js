@@ -60,3 +60,71 @@ module.exports.DelGroup = async (req, res) => {
     });
   }
 };
+
+module.exports.Adduser = async (req, res) => {
+  try {
+    // user mời phải trong nhóm và là trưởng nhóm
+    const { userAdd, groupId } = req.body;
+    const idUser = new mongoose.Types.ObjectId(req.session.passport.user);
+    const [checkUser, checkUserAdd, checkGroup] = await Promise.all([
+      User.findById({ _id: req.session.passport.user }),
+      User.findById({ _id: userAdd }),
+      Group.findById({ _id: groupId }),
+    ]);
+    const checkIdGPromise = checkUser.groups.map((groupsid) =>
+      groupsid.toString()
+    );
+    const checkIdUserAddPromise = checkUserAdd.groups.map((groupsid) =>
+      groupsid.toString()
+    );
+    const checkIdMPromise = checkGroup.members.map((membersid) =>
+      membersid.toString()
+    );
+    const [checkIdG, checkIdUserAdd, checkIdM] = await Promise.all([
+      checkIdGPromise,
+      checkIdUserAddPromise,
+      checkIdMPromise,
+    ]);
+    if (checkIdUserAdd.includes(groupId)) {
+      return res.json({
+        data: {
+          status: "error",
+          message: "user này đã trong nhóm",
+        },
+      });
+    }
+    if (checkIdG.includes(groupId) && checkGroup.leaderId.equals(idUser)) {
+      await User.findByIdAndUpdate(
+        { _id: userAdd },
+        { $push: { groups: groupId } }
+      );
+      await Group.findByIdAndUpdate(
+        { _id: groupId },
+        { $push: { members: userAdd } }
+      );
+      return res.json({
+        data: {
+          status: "success",
+          message: "Thêm thành công",
+        },
+      });
+    } else {
+      return res.json({
+        data: {
+          status: "error",
+          message: "Bạn không thể mời user vào nhóm này",
+        },
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.json({
+      data: { status: "error", message: "có lỗi" },
+    });
+  }
+};
+
+module.exports.Deluser = async (req, res) => {
+  // chỉ có leader mới xoá dc người khác
+  // user xoá phải trong nhóm
+};
