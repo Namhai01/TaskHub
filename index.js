@@ -3,11 +3,13 @@ const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const session = require("express-session");
+const bodyParser = require("body-parser");
 const MongoStore = require("connect-mongo");
 const Auth_router = require("./Routers/Auth");
 const List_router = require("./Routers/List");
 const User_router = require("./Routers/User");
 const Group_router = require("./Routers/Group");
+const Task_router = require("./Routers/Task");
 const passport = require("passport");
 const cookieParser = require("cookie-parser");
 dotenv.config();
@@ -43,6 +45,7 @@ app.use("/api/auth", Auth_router);
 app.use("/api/list", List_router);
 app.use("/api/user", User_router);
 app.use("/api/group", Group_router);
+app.use("/api/task", Task_router);
 
 //Check Connect to Mongodb
 const connect = async () => {

@@ -4,10 +4,11 @@ const mongoose = require("mongoose");
 module.exports.CreateGroup = async (req, res) => {
   try {
     const user = await User.findById({ _id: req.session.passport.user });
+    console.log(user);
     if (user) {
       const nameG = req.body.nameG;
       //User tạo nhóm
-      await Group.insertMany({
+      await Group.create({
         leaderId: req.session.passport.user,
         name: nameG,
         members: [req.session.passport.user],
@@ -17,7 +18,12 @@ module.exports.CreateGroup = async (req, res) => {
       });
       const getIdG = findG.map((G) => G._id);
       //Add id Groups vào user
-      await User.updateOne({ $addToSet: { groups: { $each: getIdG } } });
+      const a = await User.updateOne(
+        { _id: req.session.passport.user },
+        {
+          $addToSet: { groups: { $each: getIdG } },
+        }
+      );
       res.json({
         data: { status: "success", message: "Tạo nhóm thành công! " },
       });
@@ -93,7 +99,7 @@ module.exports.Adduser = async (req, res) => {
         },
       });
     }
-    if (checkIdG.includes(groupId) && checkGroup.leaderId.equals(idUser)) {
+    if (checkGroup.leaderId.equals(idUser) && checkIdG.includes(groupId)) {
       await User.findByIdAndUpdate(
         { _id: userAdd },
         { $push: { groups: groupId } }
@@ -125,6 +131,38 @@ module.exports.Adduser = async (req, res) => {
 };
 
 module.exports.Deluser = async (req, res) => {
-  // chỉ có leader mới xoá dc người khác
-  // user xoá phải trong nhóm
+  try {
+    // chỉ có leader mới xoá dc người khác
+    const { userDel, groupId } = req.body;
+    const idUser = new mongoose.Types.ObjectId(req.session.passport.user);
+    const checkLeader = await Group.findOne({ _id: groupId, leaderId: idUser });
+    if (!checkLeader || userDel === req.session.passport.user) {
+      return res.json({
+        data: {
+          status: "error",
+          message: "Bạn không thể xoá user khỏi nhóm này",
+        },
+      });
+    } else {
+      const [DelG, DelU] = await Promise.all([
+        Group.updateOne(
+          { _id: groupId, leaderId: idUser },
+          { $pull: { members: userDel } }
+        ),
+        User.updateOne({ _id: userDel }, { $pull: { groups: groupId } }),
+      ]);
+      return res.json({
+        data: {
+          status: "success",
+          message: "Xoá thành công",
+        },
+      });
+    }
+    // user xoá phải trong nhóm
+  } catch (error) {
+    console.log(error);
+    res.json({
+      data: { status: "error", message: "có lỗi" },
+    });
+  }
 };

@@ -17,7 +17,7 @@ module.exports.getJod = async (req, res) => {
 module.exports.addJod = async (req, res) => {
   try {
     if (req.body) {
-      const getList = await List.insertMany({
+      const getList = await List.create({
         userID: req.session.passport.user,
         job: req.body.job,
         title: req.body.title,

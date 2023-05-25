@@ -55,16 +55,12 @@ module.exports.Login = async (req, res) => {
       phone: 1,
       email: 1,
       isLoggedIn: 1,
-      lastTimeLoggedIn: 1,
     };
     if (req.session.passport.user) {
       const find = await User.findById(
         { _id: req.session.passport.user },
         conditions
       );
-      await User.updateOne({
-        lastTimeLoggedIn: Date.now(),
-      });
       if (res.statusCode == 401) {
         console.log("a");
       }

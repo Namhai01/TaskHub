@@ -16,10 +16,6 @@ const UsersSchema = new mongoose.Schema(
       type: String,
       require: true,
     },
-    lastTimeLoggedIn: {
-      type: Number,
-      require: true,
-    },
     isLoggedIn: {
       type: Boolean,
       enum: [true, false],
