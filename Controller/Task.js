@@ -22,7 +22,7 @@ module.exports.addTask = async (req, res) => {
     const userId = req.session.passport.user;
     const groupObjectId = new mongoose.Types.ObjectId(req.body.group);
 
-    // Tìm kiếm thông tin người dùng
+    // Tìm kiếm thông tin người dùng.
     const user = await User.findById(userId);
     if (!user) {
       return res.json({ status: "error", message: "Người dùng không hợp lệ" });
