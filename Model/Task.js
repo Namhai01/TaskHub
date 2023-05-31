@@ -21,6 +21,16 @@ const taskSchema = new mongoose.Schema(
         ref: "Group",
       },
     ],
+    assignedTo: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Users",
+      },
+    ],
+    deadline: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,

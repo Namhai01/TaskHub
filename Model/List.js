@@ -19,8 +19,8 @@ const ListsSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["DONE", "UNDONE"],
-      default: "UNDONE",
+      enum: [true, false],
+      default: false,
     },
   },
   {
