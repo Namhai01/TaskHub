@@ -1,6 +1,7 @@
 const { default: mongoose } = require("mongoose");
 const Task = require("../Model/Task");
 const User = require("../Model/User");
+const Group = require("../Model/Group");
 module.exports.getTask = async (req, res) => {
   try {
     const userId = req.session.passport.user;
@@ -67,6 +68,42 @@ module.exports.addTask = async (req, res) => {
 };
 
 module.exports.DelTask = async (req, res) => {
-  //user tạo task và leader G dc xoá
-  //
+  try {
+    const taskId = req.body.taskId;
+    const userId = req.session.passport.user;
+    const user = await User.findById(userId);
+    const task = await Task.findById(taskId);
+
+    if (!user || !task) {
+      return res.status(404).json({
+        status: "error",
+        message: "Không tìm thấy người dùng hoặc công việc",
+      });
+    }
+
+    const group = await Group.findById(task.groups);
+    if (!group) {
+      return res
+        .status(404)
+        .json({ status: "error", message: "Không tìm thấy nhóm" });
+    }
+    // if (!user.groups.some((id) => console.log(id.equals(task.groups)))) {
+    //   return res.status(403).json({
+    //     status: "error",
+    //     message: "Người dùng không có quyền xoá công việc",
+    //   });
+    // }
+    if (group.leaderId.toString() !== userId) {
+      return res.status(403).json({
+        status: "error",
+        message: "Chỉ nhóm trưởng mới có thể xoá công việc",
+      });
+    }
+    await Task.findByIdAndDelete({ _id: taskId });
+    return res
+      .status(200)
+      .json({ status: "success", message: "Xoá task thành công" });
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
 };
